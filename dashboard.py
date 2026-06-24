@@ -43,10 +43,16 @@ try:
     
     st.success(f"✅ เชื่อมตารางสำเร็จ! พบข้อมูลพร้อมวิเคราะห์ {len(df)} โครงสร้าง")
     
-    # 🧠 คำนวณ EGI ด้วยข้อมูลจริง (เลิกใช้ Random แล้ว!)
-    denominator = np.abs(df['Df'] - 3.8)
-    denominator = np.where(denominator < 0.01, 0.01, denominator)
-    df['EGI_Score'] = df['Max_Metal_Charge'] / denominator
+    # 🧠 คำนวณ EGI V2: The Sweet Spot Model
+    # 1. กำหนดขนาดรูพรุนที่เหมาะสมที่สุด (จากข้อมูล Top 10 คือประมาณ 5.0 Å)
+    optimal_df = 5.0
+    
+    # 2. คำนวณบทลงโทษ (Penalty): ยิ่งขนาดห่างจาก 5.0 จะยิ่งโดนหารเยอะ
+    # (+0.5 ใส่ไว้เพื่อป้องกันการหารด้วยศูนย์และไม่ให้คะแนนกระโดดเกินจริง)
+    size_penalty = np.abs(df['Df'] - optimal_df) + 0.5 
+    
+    # 3. สมการ EGI V2: ประจุโลหะหารด้วยบทลงโทษเรื่องขนาด
+    df['EGI_Score'] = df['Max_Metal_Charge'] / size_penalty
 
     # 📊 พล็อตกราฟ 2D Phase Diagram
     st.subheader("🎯 2D Phase Diagram: Real Van der Waals vs Electrostatic")

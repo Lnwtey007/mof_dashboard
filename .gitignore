@@ -1,2 +1,4 @@
 *.tar.gz
 all_structures_*/
+geometric_properties.csv
+methane.csv
